@@ -1,13 +1,25 @@
 const path = require('path')
 const express = require('express')
-
+const session = require('express-session')
+const authRouter = require('../auth/auth-router.js')
 const usersRouter = require('./users/users-router.js')
 
 const server = express()
 
 server.use(express.static(path.join(__dirname, '../client')))
 server.use(express.json())
-
+server.use(session({
+  name: 'monkey',
+  secret: 'keep it secret',
+  cookie: {
+    maxAge: 1000 * 60 * 60,
+    secure: false, //secure true only works on https--turning off for development since we're working on http
+    httpOnly: false, //javaScript on page can read cookie
+  },
+  resave: false,
+  saveUninitialized: false,
+}))
+server.use('/api/auth', authRouter)
 server.use('/api/users', usersRouter)
 
 server.get('/', (req, res) => {
